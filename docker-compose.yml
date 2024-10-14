@@ -1,0 +1,11 @@
+version: '3.6'
+services:
+  java:
+    build: ./docker/java
+    ports:
+      - 8080:8080
+    tty: true
+    stdin_open: true  # コンテナを対話型にして終了を防ぐ
+    volumes:
+      - ./server/src:/workspace:cached  # ホストとコンテナのフォルダを同期
+    command: ["tail", "-f", "/dev/null"]  # コンテナを常に実行状態にする

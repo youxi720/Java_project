@@ -1,0 +1,48 @@
+# ベースイメージとしてOpenJDK 11を使用
+FROM openjdk:11-jdk-slim
+
+# Android SDKのバージョンとGradleのバージョンを指定
+ENV ANDROID_SDK_VERSION=commandlinetools-linux-9477386_latest.zip
+ENV GRADLE_VERSION=7.5
+
+# 必要なパッケージをインストール
+RUN apt-get update && apt-get install -y \
+    wget \
+    unzip \
+    git \
+    build-essential \
+    lib32stdc++6 \
+    lib32z1 \
+    && apt-get clean
+
+# Android SDKのインストール
+RUN mkdir -p /opt/android-sdk/cmdline-tools && \
+    wget -q https://dl.google.com/android/repository/${ANDROID_SDK_VERSION} -O /tmp/sdk-tools.zip && \
+    unzip /tmp/sdk-tools.zip -d /opt/android-sdk/cmdline-tools && \
+    mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest && \
+    rm /tmp/sdk-tools.zip
+
+# Android SDKの環境変数を設定
+ENV ANDROID_HOME=/opt/android-sdk
+ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+# ライセンスの承諾
+RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+# Androidの必要なビルドツールやプラットフォームをインストール
+RUN sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+# Gradleのインストール
+RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -P /tmp && \
+    unzip /tmp/gradle-${GRADLE_VERSION}-bin.zip -d /opt && \
+    ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/bin/gradle && \
+    rm /tmp/gradle-${GRADLE_VERSION}-bin.zip
+
+# 作業ディレクトリを設定
+WORKDIR /workspace
+
+# Gradleのキャッシュを保持するためのボリューム設定
+VOLUME /workspace/.gradle
+
+# デフォルトのコマンド
+CMD ["gradle", "--version"]
