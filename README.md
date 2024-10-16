@@ -17,7 +17,7 @@ java --version
 gradle --version
 ```
 
-3. javaのコンパイル
+3. javaのコンパイルと実行
 ```
 javac HelloWorld.java
 java HelloWorld
