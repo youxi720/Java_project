@@ -1,5 +1,5 @@
-# Android Project
-JavaでAndroidアプリ開発
+# Java Project
+Javaの学習とDockerの環境構築
 
 ## 環境構築
 1. Dockerコンテナの起動
